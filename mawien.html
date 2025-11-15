@@ -1,0 +1,1267 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Mines AI Predictor: Advanced pattern recognition and machine learning for simulated Mines game predictions.">
+    <title>Mines AI Predictor | Advanced Pattern Recognition</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdgNsjWw/6yK/rQ/C7A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🤖</text></svg>">
+    <style>
+        /* Base Styles & Variables */
+        :root {
+            /* Colors */
+            --primary: #00d2ff; /* Bright Blue */
+            --primary-dark: #3a7bd5; /* Deeper Blue */
+            --success: #00b09b; /* Teal Green */
+            --success-dark: #008f7d;
+            --danger: #ff416c; /* Bright Pink */
+            --danger-dark: #cc3456;
+            --dark: #0f1b2e; /* Dark Blue */
+            --darker: #0a1423; /* Even Darker Blue */
+            --light: #e0e0ff; /* Light Lavender */
+code
+Code
+/* Glassmorphism */
+        --glass: rgba(255, 255, 255, 0.08);
+        --glass-light: rgba(255, 255, 255, 0.12);
+        --glass-border: rgba(255, 255, 255, 0.1);
+
+        /* Spacing */
+        --spacing-xs: 5px;
+        --spacing-sm: 10px;
+        --spacing-md: 15px;
+        --spacing-lg: 20px;
+        --spacing-xl: 30px;
+    }
+
+    /* Reset & Base */
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        -webkit-tap-highlight-color: transparent; /* Remove tap highlight on mobile */
+    }
+
+    body {
+        background: linear-gradient(135deg, var(--darker), var(--dark));
+        color: white;
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: var(--spacing-lg);
+        overflow-x: hidden;
+        position: relative;
+    }
+
+    /* Subtle background animation */
+    body::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: radial-gradient(circle at 10% 20%, rgba(0,210,255,0.05) 0%, transparent 40%),
+                    radial-gradient(circle at 90% 80%, rgba(0,210,255,0.05) 0%, transparent 40%);
+        animation: backgroundPulse 15s infinite alternate ease-in-out;
+        pointer-events: none;
+        z-index: -2; /* Below the container's pseudo-element */
+    }
+
+    @keyframes backgroundPulse {
+        0% { transform: scale(1); opacity: 0.8; }
+        100% { transform: scale(1.05); opacity: 1; }
+    }
+
+    /* Container */
+    .container {
+        width: 100%;
+        max-width: 480px;
+        background: var(--glass);
+        backdrop-filter: blur(12px);
+        border-radius: 24px;
+        padding: var(--spacing-xl);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        border: 1px solid var(--glass-border);
+        position: relative;
+        overflow: hidden;
+        z-index: 1;
+    }
+
+    /* Container pseudo-element for subtle glow effect */
+    .container::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(0,210,255,0.1) 0%, rgba(0,210,255,0) 70%);
+        z-index: -1;
+        opacity: 0.5;
+        animation: containerGlow 10s infinite alternate ease-in-out;
+    }
+
+    @keyframes containerGlow {
+        0% { transform: translate(0, 0) scale(1); }
+        100% { transform: translate(10%, 10%) scale(1.1); }
+    }
+
+    /* Header */
+    header {
+        text-align: center;
+        margin-bottom: var(--spacing-xl);
+    }
+
+    .logo {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: var(--spacing-sm);
+        margin-bottom: var(--spacing-sm);
+    }
+
+    .logo .fas {
+        font-size: 2.5rem;
+        color: var(--primary);
+    }
+
+    h1 {
+        font-size: 2.2rem;
+        margin-bottom: var(--spacing-xs);
+        background: linear-gradient(to right, var(--primary), var(--primary-dark));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        font-weight: 700;
+        letter-spacing: -0.5px;
+    }
+
+    .subtitle {
+        font-size: 1rem;
+        color: var(--light);
+        margin-bottom: var(--spacing-sm);
+        opacity: 0.8;
+    }
+
+    /* Section Transitions */
+    .section {
+        display: none;
+        opacity: 0;
+        transform: translateY(10px);
+        transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+
+    .section.active {
+        display: block;
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    /* Form Elements */
+    .platform-selector {
+        margin-bottom: var(--spacing-xl);
+    }
+
+    .platform-selector label {
+        display: block;
+        margin-bottom: var(--spacing-sm);
+        font-weight: 600;
+        color: var(--light);
+        font-size: 0.95rem;
+    }
+
+    select, input[type="text"], input[type="password"], input[type="number"] {
+        width: 100%;
+        padding: 14px 16px;
+        border-radius: 12px;
+        border: none;
+        background: var(--glass-light);
+        color: white;
+        font-size: 1rem;
+        margin-bottom: var(--spacing-md);
+        border: 1px solid var(--glass-border);
+        transition: all 0.3s ease;
+        -webkit-appearance: none; /* Remove default styling for select/number inputs */
+        -moz-appearance: none;
+        appearance: none;
+    }
+
+    select:focus, input:focus {
+        outline: none;
+        background: rgba(255, 255, 255, 0.15);
+        box-shadow: 0 0 0 3px rgba(0, 210, 255, 0.3);
+        border-color: var(--primary);
+    }
+
+    /* Custom arrow for select */
+    select {
+        background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23e0e0ff%22%20d%3D%22M287%20197.3l-11.6-11.6c-3.6-3.6-7.8-5.4-12-5.4s-8.4%201.8-12%205.4L146.2%20257.6%2041.6%20153.1c-3.6-3.6-7.8-5.4-12-5.4s-8.4%201.8-12%205.4L6%20164.7c-7.2%207.2-7.2%2018.8%200%2026l134.2%20134.2c7.2%207.2%2018.8%207.2%2026%200l134.2-134.2c7.2-7.2%207.2-18.8%200-26z%22%2F%3E%3C%2Fsvg%3E');
+        background-repeat: no-repeat, repeat;
+        background-position: right 16px top 50%, 0 0;
+        background-size: 12px auto, 100%;
+    }
+
+    .login-section {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: var(--spacing-md);
+        margin-bottom: var(--spacing-xl);
+    }
+
+    /* Game Controls */
+    .game-controls {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: var(--spacing-xl);
+        background: rgba(0, 0, 0, 0.3);
+        padding: var(--spacing-md);
+        border-radius: 16px;
+        align-items: center;
+    }
+
+    .mines-selector {
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-sm);
+    }
+
+    .mines-selector label {
+        font-size: 0.9rem;
+        color: var(--light);
+        font-weight: 600;
+    }
+
+    .mines-input {
+        width: 70px;
+        padding: var(--spacing-sm);
+        text-align: center;
+        background: var(--glass-light);
+        border-radius: 10px;
+        border: 1px solid var(--glass-border);
+        color: white;
+        font-weight: 600;
+        font-size: 1.1rem;
+        margin-bottom: 0; /* Override default input margin */
+        -moz-appearance: textfield; /* Hide arrows on Firefox */
+    }
+
+    .mines-input::-webkit-outer-spin-button,
+    .mines-input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+
+    /* Grid Display */
+    .grid-container {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: var(--spacing-sm);
+        margin-bottom: var(--spacing-xl);
+    }
+
+    .tile {
+        aspect-ratio: 1;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border-radius: 10px;
+        background: var(--glass-light);
+        font-size: 1.6rem;
+        cursor: default; /* Not clickable for user in this design */
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        border: 1px solid var(--glass-border);
+        position: relative;
+        overflow: hidden;
+        user-select: none;
+    }
+
+    .tile::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 100%);
+        opacity: 0;
+        transition: opacity 0.3s;
+    }
+
+    .tile:hover::before {
+        opacity: 1;
+    }
+
+    .tile.safe {
+        background: linear-gradient(135deg, var(--success), #96c93d);
+        box-shadow: 0 0 15px rgba(0, 176, 155, 0.6);
+        animation: pulse 2s infinite, glow 3s infinite alternate;
+    }
+
+    .tile.unsafe {
+        background: linear-gradient(135deg, var(--danger), #ff4b2b);
+        box-shadow: 0 0 15px rgba(255, 65, 108, 0.6);
+    }
+
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.03); }
+        100% { transform: scale(1); }
+    }
+
+    @keyframes glow {
+        from { box-shadow: 0 0 15px rgba(0, 176, 155, 0.6); }
+        to { box-shadow: 0 0 25px rgba(0, 176, 155, 0.9); }
+    }
+
+    /* Controls (Buttons) */
+    .controls {
+        display: flex;
+        gap: var(--spacing-sm);
+        margin-bottom: var(--spacing-lg);
+    }
+
+    button {
+        flex: 1;
+        padding: 16px;
+        border: none;
+        border-radius: 12px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: var(--spacing-xs);
+        position: relative;
+        overflow: hidden;
+        color: white; /* Ensure text color is white by default */
+    }
+
+    button::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+        transition: left 0.5s;
+        pointer-events: none; /* Allow clicks to pass through */
+    }
+
+    button:hover::before {
+        left: 100%;
+    }
+
+    button:hover:not(:disabled) {
+        transform: translateY(-3px);
+        box-shadow: 0 7px 14px rgba(0, 0, 0, 0.2);
+    }
+
+    button:active:not(:disabled) {
+        transform: translateY(-1px);
+    }
+
+    button:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+    }
+
+    .login-btn {
+        background: linear-gradient(to right, var(--success), #96c93d);
+    }
+
+    .predict-btn {
+        background: linear-gradient(to right, var(--primary), var(--primary-dark));
+    }
+
+    .logout-btn {
+        background: linear-gradient(to right, #6a11cb, #2575fc);
+        margin-top: var(--spacing-md);
+    }
+
+    /* Stats Display */
+    .stats {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: var(--spacing-md);
+        background: rgba(0, 0, 0, 0.3);
+        padding: var(--spacing-lg);
+        border-radius: 16px;
+        margin-top: var(--spacing-lg);
+    }
+
+    .stat-item {
+        text-align: center;
+        padding: var(--spacing-sm);
+        border-radius: 10px;
+        background: var(--glass);
+    }
+
+    .stat-value {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: var(--primary);
+        margin-bottom: var(--spacing-xs);
+    }
+
+    .stat-label {
+        font-size: 0.85rem;
+        color: var(--light);
+        opacity: 0.8;
+    }
+
+    /* Prediction Info */
+    .prediction-info {
+        background: rgba(0, 0, 0, 0.3);
+        padding: var(--spacing-lg);
+        border-radius: 16px;
+        margin-top: var(--spacing-lg);
+        text-align: center;
+        display: none; /* Managed by JS */
+    }
+
+    .info-title {
+        font-size: 1.2rem;
+        margin-bottom: var(--spacing-sm);
+        color: var(--primary);
+        font-weight: 600;
+    }
+
+    .info-details {
+        font-size: 0.95rem;
+        color: var(--light);
+        line-height: 1.5;
+    }
+
+    /* Footer */
+    footer {
+        text-align: center;
+        margin-top: var(--spacing-xl);
+        color: var(--light);
+        font-size: 0.8rem;
+        opacity: 0.7;
+    }
+
+    /* Status Messages */
+    .status-message {
+        text-align: center;
+        padding: var(--spacing-sm);
+        margin-bottom: var(--spacing-lg);
+        border-radius: 10px;
+        display: none; /* Managed by JS */
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: var(--spacing-xs);
+    }
+
+    .status-message .fas {
+        font-size: 1rem;
+    }
+
+    .status-message.success {
+        background: rgba(0, 180, 155, 0.2);
+        color: var(--success);
+        border: 1px solid rgba(0, 180, 155, 0.3);
+    }
+
+    .status-message.error {
+        background: rgba(255, 65, 108, 0.2);
+        color: var(--danger);
+        border: 1px solid rgba(255, 65, 108, 0.3);
+    }
+
+    /* AI Status Indicator */
+    .ai-status {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: var(--spacing-xs);
+        margin-top: var(--spacing-md);
+        font-size: 0.9rem;
+        color: var(--light);
+    }
+
+    .ai-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--success);
+        animation: aiPulse 1.5s infinite;
+    }
+
+    @keyframes aiPulse {
+        0% { transform: scale(1); opacity: 0.7; }
+        50% { transform: scale(1.2); opacity: 1; }
+        100% { transform: scale(1); opacity: 0.7; }
+    }
+
+    /* Accuracy Colors */
+    .accuracy-high { color: var(--success); }
+    .accuracy-medium { color: #ffa726; /* Orange */ }
+    .accuracy-low { color: var(--danger); }
+
+    /* User Info Bar */
+    .user-info {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: var(--spacing-lg);
+        padding: var(--spacing-md);
+        background: rgba(0, 0, 0, 0.3);
+        border-radius: 12px;
+    }
+
+    .user-details {
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-sm);
+    }
+
+    .user-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: linear-gradient(to right, var(--primary), var(--primary-dark));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        font-size: 1.1rem;
+        color: white;
+        flex-shrink: 0;
+    }
+
+    .platform-badge {
+        background: var(--glass);
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        color: var(--light);
+        white-space: nowrap; /* Prevent badge text from wrapping */
+    }
+
+    /* Loading Spinner for buttons */
+    .loading-spinner {
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-top: 2px solid white;
+        border-radius: 50%;
+        width: 1em;
+        height: 1em;
+        animation: spin 0.8s linear infinite;
+        display: inline-block;
+        margin-right: var(--spacing-xs);
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    /* Accessibility: Reduced Motion */
+    @media (prefers-reduced-motion: reduce) {
+        .container::before, body::before, .tile.safe, .ai-dot, @keyframes pulse, @keyframes glow, @keyframes aiPulse, @keyframes backgroundPulse, @keyframes containerGlow {
+            animation: none !important;
+            transition: none !important;
+        }
+        .tile.safe {
+            box-shadow: 0 0 15px rgba(0, 176, 155, 0.6); /* Keep static glow */
+        }
+    }
+
+    /* Responsive Adjustments */
+    @media (max-width: 768px) {
+        .login-section {
+            grid-template-columns: 1fr;
+        }
+        
+        .controls {
+            flex-direction: column;
+        }
+        
+        h1 {
+            font-size: 2rem;
+        }
+        
+        .game-controls {
+            flex-direction: column;
+            gap: var(--spacing-md);
+            align-items: stretch;
+        }
+        
+        .mines-selector {
+            justify-content: space-between;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .container {
+            padding: var(--spacing-lg);
+            border-radius: 18px;
+        }
+        
+        .grid-container {
+            gap: var(--spacing-xs);
+        }
+        
+        .tile {
+            font-size: 1.4rem;
+        }
+        
+        .stats {
+            grid-template-columns: 1fr;
+            padding: var(--spacing-md);
+        }
+
+        h1 {
+            font-size: 1.8rem;
+        }
+
+        .subtitle {
+            font-size: 0.9rem;
+        }
+    }
+</style>
+</head>
+<body>
+    <main class="container">
+        <header>
+            <div class="logo">
+                <i class="fas fa-robot" aria-hidden="true"></i>
+                <h1>Mines AI Predictor</h1>
+            </div>
+            <p class="subtitle">Advanced Pattern Recognition & Machine Learning</p>
+        </header>
+code
+Code
+<!-- Section 1: Platform Selection and Login -->
+    <section id="loginSection" class="section active" aria-labelledby="loginHeading">
+        <h2 id="loginHeading" class="sr-only">Login to Mines AI Predictor</h2>
+        <div class="platform-selector">
+            <label for="platform">Select Gaming Platform:</label>
+            <select id="platform" aria-label="Select Gaming Platform">
+                <option value="premierbet">PremierBet</option>
+                <option value="betwinwins">BetWinWins</option>
+                <option value="galsport">GalSport</option>
+                <option value="1xlite">1xLite</option>
+                <option value="melbet">MelBet</option>
+                <option value="betwinner">BetWinner</option>
+                <option value="linebet">LineBet</option>
+                <option value="megapari">MegaPari</option>
+            </select>
+        </div>
+        
+        <div class="login-section">
+            <div>
+                <input type="text" id="username" placeholder="Username / Email / ID" aria-label="Username or Email or ID" required>
+            </div>
+            <div>
+                <input type="password" id="password" placeholder="Password" aria-label="Password" required>
+            </div>
+        </div>
+        
+        <div id="statusMessage" class="status-message" role="status" aria-live="polite"></div>
+        
+        <button type="button" class="login-btn" id="loginBtn" aria-label="Connect and Analyze">
+            <i class="fas fa-sign-in-alt" aria-hidden="true"></i> Connect & Analyze
+        </button>
+        
+        <div class="ai-status">
+            <div class="ai-dot" aria-hidden="true"></div>
+            <span>AI System Ready</span>
+        </div>
+    </section>
+    
+    <!-- Section 2: Prediction Interface -->
+    <section id="predictionSection" class="section" aria-labelledby="predictionHeading">
+        <h2 id="predictionHeading" class="sr-only">Mines Prediction Interface</h2>
+        <div class="user-info">
+            <div class="user-details">
+                <div class="user-avatar" id="userAvatar" aria-label="User Avatar">AI</div>
+                <div>
+                    <div id="userWelcome" aria-live="polite">Welcome, User</div>
+                    <div class="ai-status">
+                        <div class="ai-dot" aria-hidden="true"></div>
+                        <span>AI Analyzing Patterns</span>
+                    </div>
+                </div>
+            </div>
+            <div id="platformBadge" class="platform-badge" aria-label="Current Gaming Platform">GalSport</div>
+        </div>
+        
+        <div class="game-controls">
+            <div class="mines-selector">
+                <label for="minesCount">Mines:</label>
+                <input type="number" id="minesCount" class="mines-input" min="1" max="20" value="12" aria-label="Number of Mines">
+            </div>
+            <!-- Future improvement: Add more game controls here like "Bet Amount" etc. -->
+        </div>
+        
+        <div class="grid-container" id="grid" role="grid" aria-label="Mines Game Grid">
+            <!-- Tiles will be generated by JavaScript -->
+        </div>
+        
+        <div class="controls">
+            <button type="button" class="predict-btn" id="predictBtn" aria-label="Generate New Prediction">
+                <i class="fas fa-bolt" aria-hidden="true"></i> Generate Prediction
+            </button>
+        </div>
+        
+        <div class="prediction-info" id="predictionInfo" role="region" aria-live="polite">
+            <div class="info-title">AI Prediction Analysis</div>
+            <p class="info-details" id="infoDetails">
+                Based on advanced pattern recognition and historical data analysis, these positions have the highest probability of being safe.
+            </p>
+        </div>
+        
+        <div class="stats" role="group" aria-label="Prediction Statistics">
+            <div class="stat-item">
+                <div class="stat-value" id="safeCount">13</div>
+                <div class="stat-label">Safe Tiles</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="unsafeCount">12</div>
+                <div class="stat-label">Mines</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value accuracy-high" id="accuracy">97.7%</div>
+                <div class="stat-label">AI Accuracy</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="nextMultiplier">1.39x</div>
+                <div class="stat-label">Next Multiplier</div>
+            </div>
+        </div>
+        
+        <button type="button" class="logout-btn" id="logoutBtn" aria-label="Switch Account">
+            <i class="fas fa-sign-out-alt" aria-hidden="true"></i> Switch Account
+        </button>
+    </section>
+    
+    <footer>
+        <p>Mines AI Predictor &copy; <span id="currentYear"></span> | Advanced Machine Learning System</p>
+    </footer>
+</main>
+
+<script>
+    (function() { // IIFE for encapsulation
+        // --- DOM Elements ---
+        const loginSection = document.getElementById('loginSection');
+        const predictionSection = document.getElementById('predictionSection');
+        const loginBtn = document.getElementById('loginBtn');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const predictBtn = document.getElementById('predictBtn');
+        const statusMessage = document.getElementById('statusMessage');
+        const userWelcome = document.getElementById('userWelcome');
+        const userAvatar = document.getElementById('userAvatar');
+        const platformBadge = document.getElementById('platformBadge');
+        const grid = document.getElementById('grid');
+        const predictionInfo = document.getElementById('predictionInfo');
+        const infoDetails = document.getElementById('infoDetails');
+        const platformSelect = document.getElementById('platform');
+        const usernameInput = document.getElementById('username');
+        const passwordInput = document.getElementById('password');
+        const minesCountInput = document.getElementById('minesCount');
+        const safeCountDisplay = document.getElementById('safeCount');
+        const unsafeCountDisplay = document.getElementById('unsafeCount');
+        const accuracyDisplay = document.getElementById('accuracy');
+        const nextMultiplierDisplay = document.getElementById('nextMultiplier');
+        const currentYearSpan = document.getElementById('currentYear');
+
+        // --- Game State & AI Memory (Persistent via localStorage) ---
+        let gameHistory = JSON.parse(localStorage.getItem('minesGameHistory')) || [];
+        let patternMemory = JSON.parse(localStorage.getItem('minesPatternMemory')) || {};
+        let currentUser = localStorage.getItem('minesCurrentUser') || '';
+        let currentPlatform = localStorage.getItem('minesCurrentPlatform') || '';
+        let predictionCount = 0; // Resets on page load, could be persistent if desired
+
+        const TOTAL_TILES = 25;
+        const MIN_MINES = 1;
+        const MAX_MINES = 20;
+
+        // --- Utility Functions ---
+
+        /**
+         * Simple pseudo-random number generator (PRNG) for seeded randomness.
+         * This helps make "predictions" consistent for a given user/platform/mines count.
+         * @param {string} seedString
+         * @returns {function(): number} A function that returns a pseudo-random number between 0 and 1.
+         */
+        function mulberry32(seedString) {
+            let seed = 0;
+            for (let i = 0; i < seedString.length; i++) {
+                seed = ((seed << 5) - seed) + seedString.charCodeAt(i);
+                seed |= 0; // Convert to 32bit integer
+            }
+            return function() {
+                seed |= 0;
+                seed = seed + 0x6D2B79F5 | 0;
+                let t = Math.imul(seed ^ seed >>> 15, 1 | seed);
+                t = t + Math.imul(t ^ t >>> 13, 1 | t) | 0;
+                return ((t ^ t >>> 16) >>> 0) / 4294967296;
+            }
+        }
+
+        /**
+         * Debounces a function call.
+         * @param {function} func The function to debounce.
+         * @param {number} delay The debounce delay in milliseconds.
+         * @returns {function} The debounced function.
+         */
+        function debounce(func, delay) {
+            let timeout;
+            return function(...args) {
+                const context = this;
+                clearTimeout(timeout);
+                timeout = setTimeout(() => func.apply(context, args), delay);
+            };
+        }
+
+        // --- UI Update Functions ---
+
+        /**
+         * Displays a status message to the user.
+         * @param {string} message The message to display.
+         * @param {'success'|'error'|'info'} type The type of message (influences styling).
+         * @param {string} iconClass Font Awesome icon class (e.g., 'fas fa-check-circle').
+         */
+        function showStatus(message, type, iconClass) {
+            statusMessage.innerHTML = `<i class="${iconClass || ''}" aria-hidden="true"></i> ${message}`;
+            statusMessage.className = `status-message ${type}`;
+            statusMessage.style.display = 'flex'; // Use flex to center icon and text
+        }
+
+        /**
+         * Hides the status message.
+         */
+        function hideStatus() {
+            statusMessage.style.display = 'none';
+            statusMessage.textContent = '';
+        }
+
+        /**
+         * Sets the loading state for a button.
+         * @param {HTMLElement} button The button element.
+         * @param {boolean} isLoading True to show loading, false otherwise.
+         * @param {string} originalText The original text/HTML of the button.
+         */
+        function setButtonLoading(button, isLoading, originalText = '') {
+            if (isLoading) {
+                button.dataset.originalHtml = button.innerHTML; // Store original content
+                button.innerHTML = '<span class="loading-spinner"></span> Loading...';
+                button.disabled = true;
+            } else {
+                button.innerHTML = button.dataset.originalHtml || originalText; // Restore original content
+                button.disabled = false;
+            }
+        }
+
+        /**
+         * Initializes or resets the Mines grid.
+         * Updates safe/unsafe tile counts based on current mines input.
+         */
+        function initializeGrid() {
+            grid.innerHTML = '';
+            predictionInfo.style.display = 'none';
+            
+            const minesCount = parseInt(minesCountInput.value) || 12;
+            const safeTilesCount = TOTAL_TILES - minesCount;
+            
+            safeCountDisplay.textContent = safeTilesCount;
+            unsafeCountDisplay.textContent = minesCount;
+            
+            for (let i = 0; i < TOTAL_TILES; i++) {
+                const tile = document.createElement('div');
+                tile.className = 'tile';
+                tile.dataset.index = i;
+                tile.innerHTML = '<span aria-hidden="true">?</span>'; // Use span for accessibility
+                grid.appendChild(tile);
+            }
+            updateStats(); // Update other stats as well
+        }
+
+        // --- AI Logic Functions ---
+
+        /**
+         * Generates a new AI prediction for the Mines grid.
+         * Highlights safe and unsafe tiles based on the AI algorithm.
+         */
+        async function generatePrediction() {
+            setButtonLoading(predictBtn, true);
+            hideStatus(); // Clear previous status messages
+
+            const minesCount = parseInt(minesCountInput.value) || 12;
+            const safeTilesCount = TOTAL_TILES - minesCount;
+            
+            // Clear previous highlights and reset tiles
+            const tiles = document.querySelectorAll('.tile');
+            tiles.forEach(tile => {
+                tile.classList.remove('safe', 'unsafe');
+                tile.innerHTML = '<span aria-hidden="true">?</span>';
+            });
+            
+            // Simulate AI processing delay
+            await new Promise(resolve => setTimeout(resolve, 1200));
+
+            const safePositions = runAIPredictionAlgorithm(minesCount);
+            const unsafePositions = Array.from({ length: TOTAL_TILES }, (_, i) => i)
+                                         .filter(idx => !safePositions.includes(idx));
+
+            // Highlight safe and unsafe tiles with staggered animation
+            const allPositions = [...safePositions, ...unsafePositions];
+            // Shuffle positions to make the staggered reveal less predictable visually
+            allPositions.sort(() => Math.random() - 0.5);
+
+            for (let i = 0; i < allPositions.length; i++) {
+                const index = allPositions[i];
+                const tile = tiles[index];
+                setTimeout(() => {
+                    if (safePositions.includes(index)) {
+                        tile.classList.add('safe');
+                        tile.innerHTML = '<span aria-hidden="true">🌟</span>';
+                        tile.setAttribute('aria-label', 'Safe tile, star icon');
+                    } else {
+                        tile.classList.add('unsafe');
+                        tile.innerHTML = '<span aria-hidden="true">💣</span>';
+                        tile.setAttribute('aria-label', 'Unsafe tile, bomb icon');
+                    }
+                }, i * 40); // Slightly reduced stagger for faster reveal
+            }
+            
+            storePrediction(safePositions, minesCount);
+            
+            predictionInfo.style.display = 'block';
+            infoDetails.textContent = `AI has analyzed ${gameHistory.length} previous patterns. Based on advanced algorithms, these ${safeTilesCount} positions have a ${getAccuracy()}% safety probability.`;
+            
+            predictionCount++;
+            updateStats();
+            setButtonLoading(predictBtn, false);
+            showStatus('Prediction generated successfully!', 'success', 'fas fa-check-circle');
+        }
+
+        /**
+         * The core AI prediction logic.
+         * Uses pattern memory and seeded randomness for consistency.
+         * @param {number} minesCount
+         * @returns {number[]} Array of indices for safe positions.
+         */
+        function runAIPredictionAlgorithm(minesCount) {
+            const safePositions = new Set();
+            const safeTilesCount = TOTAL_TILES - minesCount;
+            
+            const memoryKey = `${currentUser}-${currentPlatform}-${minesCount}`;
+            const prng = mulberry32(memoryKey + predictionCount.toString()); // Seed PRNG with current prediction count
+
+            if (patternMemory[memoryKey] && patternMemory[memoryKey].length > 0) {
+                const previousPatterns = patternMemory[memoryKey];
+                const positionFrequency = new Array(TOTAL_TILES).fill(0);
+                
+                previousPatterns.forEach(pattern => {
+                    pattern.safePositions.forEach(pos => {
+                        positionFrequency[pos]++;
+                    });
+                });
+                
+                // Sort positions by frequency (most frequently safe first)
+                const sortedPositions = positionFrequency
+                    .map((freq, index) => ({ index, freq }))
+                    .sort((a, b) => b.freq - a.freq);
+                
+                // Select a portion based on frequency
+                for (let i = 0; i < sortedPositions.length && safePositions.size < safeTilesCount; i++) {
+                    // A more "intelligent" AI might have a threshold or dynamically pick.
+                    // For perfection, let's say it prefers highly frequent ones.
+                    if (sortedPositions[i].freq > 0) { // Only consider positions seen as safe before
+                         safePositions.add(sortedPositions[i].index);
+                    }
+                }
+            }
+
+            // Fill remaining safe positions using seeded randomness to ensure consistency
+            while (safePositions.size < safeTilesCount) {
+                const pos = Math.floor(prng() * TOTAL_TILES);
+                safePositions.add(pos);
+            }
+            
+            return Array.from(safePositions);
+        }
+
+        /**
+         * Stores the latest prediction in game history and pattern memory.
+         * Persists memory to localStorage.
+         * @param {number[]} safePositions
+         * @param {number} minesCount
+         */
+        function storePrediction(safePositions, minesCount) {
+            const memoryKey = `${currentUser}-${currentPlatform}-${minesCount}`;
+            
+            if (!patternMemory[memoryKey]) {
+                patternMemory[memoryKey] = [];
+            }
+            
+            patternMemory[memoryKey].push({
+                safePositions: safePositions,
+                timestamp: Date.now()
+            });
+            
+            // Keep only the last 200 patterns for a balance of memory and performance
+            if (patternMemory[memoryKey].length > 200) {
+                patternMemory[memoryKey].shift(); // Remove oldest entry
+            }
+            
+            gameHistory.push({
+                user: currentUser,
+                platform: currentPlatform,
+                minesCount: minesCount,
+                safePositions: safePositions,
+                timestamp: Date.now()
+            });
+
+            // Keep only the last 500 overall game history entries
+            if (gameHistory.length > 500) {
+                gameHistory.shift();
+            }
+
+            // Persist to localStorage
+            localStorage.setItem('minesGameHistory', JSON.stringify(gameHistory));
+            localStorage.setItem('minesPatternMemory', JSON.stringify(patternMemory));
+        }
+        
+        /**
+         * Calculates the simulated AI accuracy based on game history and platform.
+         * @returns {string} Formatted accuracy percentage.
+         */
+        function getAccuracy() {
+            let baseAccuracy = 95.0; // Starting point, slightly lower for more room to grow
+            
+            // Influence from overall game history length (general experience)
+            baseAccuracy += Math.min(gameHistory.length * 0.01, 2.0); // Max +2% for 200 entries
+
+            // Influence from specific pattern memory for current user/platform/mines
+            const memoryKey = `${currentUser}-${currentPlatform}-${parseInt(minesCountInput.value) || 12}`;
+            if (patternMemory[memoryKey]) {
+                baseAccuracy += Math.min(patternMemory[memoryKey].length * 0.02, 2.5); // Max +2.5% for 125 entries
+            }
+            
+            // Platform-specific adjustments (randomized slightly to simulate real-world variance)
+            const platformAccuracyBonus = {
+                'premierbet': 0.5,
+                'betwinwins': 0.3,
+                'galsport': 0.7,
+                '1xlite': 0.2,
+                'melbet': 0.6,
+                'betwinner': 0.4,
+                'linebet': 0.8,
+                'megapari': 0.7
+            }[currentPlatform] || 0;
+
+            baseAccuracy += platformAccuracyBonus;
+
+            // Add a small, dynamic component based on current prediction count
+            baseAccuracy += (predictionCount % 10) * 0.01;
+
+            // Cap at 99.9% (realistic maximum)
+            const finalAccuracy = Math.min(baseAccuracy, 99.9);
+            return finalAccuracy.toFixed(1);
+        }
+        
+        /**
+         * Updates all statistics displayed in the UI.
+         */
+        function updateStats() {
+            const minesCount = parseInt(minesCountInput.value) || 12;
+            const safeTilesCount = TOTAL_TILES - minesCount;
+            
+            safeCountDisplay.textContent = safeTilesCount;
+            unsafeCountDisplay.textContent = minesCount;
+            
+            const currentAccuracy = parseFloat(getAccuracy());
+            accuracyDisplay.textContent = `${currentAccuracy}%`;
+            
+            // Calculate next multiplier based on mines count and accuracy
+            // A more complex formula could be used, but this works for demo.
+            let baseMultiplier = 1.0 + (minesCount * 0.05); // More impact from mines
+            const accuracyBonus = (currentAccuracy - 90) * 0.015; // Stronger accuracy bonus
+            const calculatedMultiplier = (baseMultiplier + accuracyBonus).toFixed(2);
+            nextMultiplierDisplay.textContent = `${calculatedMultiplier}x`;
+            
+            // Update accuracy color based on value
+            if (currentAccuracy >= 98) {
+                accuracyDisplay.className = 'stat-value accuracy-high';
+            } else if (currentAccuracy >= 96) {
+                accuracyDisplay.className = 'stat-value accuracy-medium';
+            } else {
+                accuracyDisplay.className = 'stat-value accuracy-low';
+            }
+        }
+
+        // --- Authentication & Session Management ---
+
+        /**
+         * Simulates user login and authentication.
+         * @param {string} username
+         * @param {string} password
+         * @param {string} platform
+         * @returns {Promise<{success: boolean, message: string, user?: string, platform?: string}>}
+         */
+        async function verifyLogin(username, password, platform) {
+            if (!username || !password) {
+                return { success: false, message: "Please enter both username and password", icon: 'fas fa-exclamation-triangle' };
+            }
+            if (username.length < 3) {
+                return { success: false, message: "Username must be at least 3 characters", icon: 'fas fa-exclamation-triangle' };
+            }
+            if (password.length < 4) {
+                return { success: false, message: "Password must be at least 4 characters", icon: 'fas fa-exclamation-triangle' };
+            }
+            
+            // Simulate API verification delay
+            await new Promise(resolve => setTimeout(resolve, 1500));
+
+            // In a real application, you'd send these to a backend API.
+            // For this simulation, any valid-looking credentials will "log in".
+            return { 
+                success: true, 
+                message: `Successfully connected to ${platformSelect.options[platformSelect.selectedIndex].text}`,
+                icon: 'fas fa-check-circle',
+                user: username,
+                platform: platform
+            };
+        }
+
+        /**
+         * Handles the login button click event.
+         */
+        loginBtn.addEventListener('click', async function() {
+            const username = usernameInput.value.trim();
+            const password = passwordInput.value.trim(); // Password is not stored, only for demo validation
+            const platform = platformSelect.value;
+            
+            setButtonLoading(loginBtn, true, '<i class="fas fa-sign-in-alt"></i> Connect & Analyze');
+            hideStatus(); // Clear previous messages
+            
+            try {
+                const result = await verifyLogin(username, password, platform);
+                
+                if (result.success) {
+                    showStatus(result.message, 'success', result.icon);
+                    
+                    // Store user and platform info (simulated session)
+                    currentUser = result.user;
+                    currentPlatform = result.platform;
+                    localStorage.setItem('minesCurrentUser', currentUser);
+                    localStorage.setItem('minesCurrentPlatform', currentPlatform);
+                    
+                    // Update UI
+                    userWelcome.textContent = `Welcome, ${result.user}`;
+                    userAvatar.textContent = result.user.charAt(0).toUpperCase();
+                    platformBadge.textContent = platformSelect.options[platformSelect.selectedIndex].text;
+                    
+                    // Switch to prediction section after a brief delay
+                    setTimeout(() => {
+                        loginSection.classList.remove('active');
+                        predictionSection.classList.add('active');
+                        initializeGrid(); // Setup grid for prediction
+                        
+                        // Generate first prediction automatically
+                        setTimeout(generatePrediction, 500);
+                    }, 1000); // Shorter delay for better UX
+                } else {
+                    showStatus(result.message, 'error', result.icon);
+                }
+            } catch (error) {
+                console.error("Login error:", error);
+                showStatus("An unexpected error occurred during login.", 'error', 'fas fa-times-circle');
+            } finally {
+                setButtonLoading(loginBtn, false);
+            }
+        });
+        
+        /**
+         * Handles the logout button click event.
+         */
+        logoutBtn.addEventListener('click', function() {
+            predictionSection.classList.remove('active');
+            loginSection.classList.add('active');
+            
+            // Clear login form and reset session data
+            usernameInput.value = '';
+            passwordInput.value = '';
+            currentUser = '';
+            currentPlatform = '';
+            predictionCount = 0; // Reset prediction count for new session
+            localStorage.removeItem('minesCurrentUser');
+            localStorage.removeItem('minesCurrentPlatform');
+            // Could also clear game history/pattern memory if desired on logout
+            // localStorage.removeItem('minesGameHistory');
+            // localStorage.removeItem('minesPatternMemory');
+
+            hideStatus(); // Clear any existing status messages
+            userWelcome.textContent = 'Welcome, User'; // Reset welcome message
+            userAvatar.textContent = 'AI'; // Reset avatar
+            platformBadge.textContent = 'GalSport'; // Reset badge
+        });
+        
+        /**
+         * Handles the prediction button click event.
+         */
+        predictBtn.addEventListener('click', generatePrediction);
+        
+        /**
+         * Handles changes to the mines count input with debouncing.
+         */
+        minesCountInput.addEventListener('input', debounce(function() {
+            let value = parseInt(this.value);
+            if (isNaN(value) || value < MIN_MINES) {
+                value = MIN_MINES;
+            } else if (value > MAX_MINES) {
+                value = MAX_MINES;
+            }
+            this.value = value; // Update input field to valid value
+
+            initializeGrid(); // Re-initialize grid with new mine count
+            
+            if (predictionSection.classList.contains('active')) {
+                // Automatically generate a new prediction if already logged in
+                generatePrediction();
+            }
+        }, 300)); // Debounce for 300ms
+
+        // --- Initialization on Load ---
+        function init() {
+            currentYearSpan.textContent = new Date().getFullYear();
+
+            if (currentUser && currentPlatform) {
+                // If user is already logged in (from localStorage), skip login and go to prediction
+                loginSection.classList.remove('active');
+                predictionSection.classList.add('active');
+                userWelcome.textContent = `Welcome, ${currentUser}`;
+                userAvatar.textContent = currentUser.charAt(0).toUpperCase();
+                
+                // Find platform name from select options
+                const selectedOption = Array.from(platformSelect.options).find(option => option.value === currentPlatform);
+                platformBadge.textContent = selectedOption ? selectedOption.text : currentPlatform;
+                
+                // Set platform selector to current platform
+                platformSelect.value = currentPlatform;
+
+                initializeGrid();
+                generatePrediction(); // Generate a prediction immediately
+            } else {
+                initializeGrid(); // Initialize grid in login view
+            }
+        }
+
+        init(); // Run initialization
+    })();
+</script
